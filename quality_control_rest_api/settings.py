@@ -25,9 +25,7 @@ SECRET_KEY = '03&2kod(&2xo3q%*uo*dx(9hdo6aeq2n75!=z(*z+-zv90a+dn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost:8080',
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -130,7 +128,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permission.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
 }
 

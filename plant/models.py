@@ -13,19 +13,28 @@ class Unit(models.Model):
     class Meta:
         unique_together = ['name', 'management']
 
+    def __str__(self):
+        return self.name
+
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
-class Section(models.Model):
+    def __str__(self):
+        return self.name
+
+class Criterion(models.Model):
     name = models.CharField(max_length=100)
-    department = models.ForeignKey(Department, related_name='sections', on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, related_name='criteria', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ['name', 'department']
 
-class Criterion(models.Model):
-    name = models.CharField(max_length=100)
-    section = models.ForeignKey(Section, related_name='criteria', on_delete=models.CASCADE)
+    def __str__(self):
+        return self.name
 
-    class Meta:
-        unique_together = ['name', 'section']
+class Evaluation(models.Model):
+    date = models.DateField()
+    unit = models.ForeignKey(Unit, related_name='evaluation_units', on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, related_name='evaluation_departments', on_delete=models.CASCADE)
+    criterion = models.ForeignKey(Criterion, related_name='evaluation_criteria', on_delete=models.CASCADE)
+    checked = models.BooleanField()

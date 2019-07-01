@@ -18,19 +18,18 @@ class ManagementSerializer(serializers.ModelSerializer):
 
 class CriterionSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'name', 'section')
+        fields = ('id', 'name', 'department')
         model = models.Criterion
 
-class SectionSerializer(serializers.ModelSerializer):
-    criteria = CriterionSerializer(many=True, read_only=True)
-
+class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'name', 'department', 'criteria')
-        model = models.Section
+        fields = ('id', 'date', 'unit', 'department', 'criterion', 'checked')
+        model = models.Evaluation
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True, read_only=True)
+    # criteria = CriterionSerializer(many=True, read_only=True)
+    # evaluation_departments = EvaluationSerializer(many=True, read_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'sections')
+        fields = ('id', 'name')
         model = models.Department

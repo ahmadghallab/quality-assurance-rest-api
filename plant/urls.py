@@ -20,13 +20,11 @@ urlpatterns = [
     path('department/<int:pk>',
         views.RetrieveUpdateDestroyDepartment.as_view()),
 
-    path('section',
-        views.ListCreateSection.as_view()),
-    path('section/<int:pk>',
-        views.RetrieveUpdateDestroySection.as_view()),
-
     path('criterion',
         views.ListCreateCriterion.as_view()),
     path('criterion/<int:pk>',
-        views.RetrieveUpdateDestroyCriterion.as_view())
+        views.RetrieveUpdateDestroyCriterion.as_view()),
+
+    path('evaluation',
+        views.ListCreateEvaluation.as_view())
 ]

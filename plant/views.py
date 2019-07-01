@@ -27,14 +27,6 @@ class RetrieveUpdateDestroyDepartment(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Department.objects.all()
     serializer_class = serializers.DepartmentSerializer
 
-class ListCreateSection(generics.ListCreateAPIView):
-    queryset = models.Section.objects.all()
-    serializer_class = serializers.SectionSerializer
-
-class RetrieveUpdateDestroySection(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Section.objects.all()
-    serializer_class = serializers.SectionSerializer
-
 class ListCreateCriterion(generics.ListCreateAPIView):
     queryset = models.Criterion.objects.all()
     serializer_class = serializers.CriterionSerializer
@@ -42,3 +34,7 @@ class ListCreateCriterion(generics.ListCreateAPIView):
 class RetrieveUpdateDestroyCriterion(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Criterion.objects.all()
     serializer_class = serializers.CriterionSerializer
+
+class ListCreateEvaluation(generics.ListCreateAPIView):
+    queryset = models.Evaluation.objects.all()
+    serializer_class = serializers.EvaluationSerializer

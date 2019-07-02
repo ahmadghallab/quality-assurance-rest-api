@@ -2,16 +2,13 @@ from rest_framework import serializers
 
 from . import models
 
-class UnitSerializer(serializers.ModelSerializer):
-    # management_id = serializers.StringRelatedField()
-    
+class UnitSerializer(serializers.ModelSerializer):    
     class Meta:
         fields = ('id', 'name', 'management')
         model = models.Unit
 
 class ManagementSerializer(serializers.ModelSerializer):
     units = UnitSerializer(many=True, read_only=True)
-
     class Meta:
         fields = ('id', 'name', 'units')
         model = models.Management

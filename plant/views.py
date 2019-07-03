@@ -38,3 +38,7 @@ class RetrieveUpdateDestroyCriterion(generics.RetrieveUpdateDestroyAPIView):
 class ListCreateEvaluation(generics.ListCreateAPIView):
     queryset = models.Evaluation.objects.all()
     serializer_class = serializers.EvaluationSerializer
+
+class RetrieveUpdateDestroyEvaluation(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Evaluation.objects.all()
+    serializer_class = serializers.EvaluationSerializer

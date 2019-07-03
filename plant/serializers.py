@@ -20,13 +20,12 @@ class CriterionSerializer(serializers.ModelSerializer):
 
 class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'date', 'unit', 'department', 'criterion', 'checked')
+        fields = ('id', 'month', 'year', 'unit', 'criterion', 'checked')
         model = models.Evaluation
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    # criteria = CriterionSerializer(many=True, read_only=True)
-    # evaluation_departments = EvaluationSerializer(many=True, read_only=True)
-
+    criteria = CriterionSerializer(many=True, read_only=True)
+    
     class Meta:
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'criteria')
         model = models.Department

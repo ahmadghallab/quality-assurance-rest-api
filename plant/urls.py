@@ -25,7 +25,7 @@ urlpatterns = [
     path('criterion/<int:pk>',
         views.RetrieveUpdateDestroyCriterion.as_view()),
 
-    path('evaluation',
+    path('evaluation/unit/<int:unit_pk>',
         views.ListCreateEvaluation.as_view()),
     path('evaluation/<int:pk>',
         views.RetrieveUpdateDestroyEvaluation.as_view())

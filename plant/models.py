@@ -33,8 +33,8 @@ class Criterion(models.Model):
         return self.name
 
 class Evaluation(models.Model):
-    month = models.SmallIntegerField()
-    year = models.SmallIntegerField()
+    date = models.DateField()
     unit = models.ForeignKey(Unit, related_name='unit_evaluations', on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, related_name='department_evaluations', on_delete=models.CASCADE)
     criterion = models.ForeignKey(Criterion, related_name='criterion_evaluations', on_delete=models.CASCADE)
-    checked = models.BooleanField(default=True)
+    checked = models.BooleanField()

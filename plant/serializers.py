@@ -20,8 +20,11 @@ class CriterionSerializer(serializers.ModelSerializer):
 
 class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'month', 'year', 'unit', 'criterion', 'checked')
+        fields = ('id', 'date', 'unit', 'department', 'criterion', 'checked')
         model = models.Evaluation
+    
+    def create(self, validated_data):
+        return models.Evaluation.objects.create(**validated_data)
 
 class DepartmentSerializer(serializers.ModelSerializer):
     criteria = CriterionSerializer(many=True, read_only=True)

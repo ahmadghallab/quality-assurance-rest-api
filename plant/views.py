@@ -1,5 +1,7 @@
 import datetime
 
+from django.db.models import Q
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -84,6 +86,16 @@ class DeleteUnitEvaluation(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class SaveUnitEvaluation(APIView):
+    def post(self, request, format=None):
+        criteria = self.request.data.get('criteria')
+        for criterion in criteria:
+            models.Evaluation.objects.filter(pk=criterion).update(
+                checked=Q(checked=False)
+            )
+
+        return Response(status=status.HTTP_200_OK)
+
 class EditUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
 
@@ -96,7 +108,7 @@ class EditUnitEvaluation(APIView):
         ).distinct()
 
         evaluations = models.Evaluation.objects.values(
-            'pk', 'department_id', 'criterion__name', 'checked'
+            'id', 'department_id', 'criterion__name', 'checked'
         ).filter(
             unit_id=unit_pk,
             month=self.request.query_params.get('month'),

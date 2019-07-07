@@ -32,6 +32,7 @@ urlpatterns = [
         views.DeleteUnitEvaluation.as_view()),
     path('unit/<int:unit_pk>/evaluation/edit',
         views.EditUnitEvaluation.as_view()),
+    path('unit/evaluation/save', views.SaveUnitEvaluation.as_view()),
 
     path('evaluation/<int:pk>',
         views.UpdateEvaluation.as_view()),

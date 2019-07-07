@@ -2,9 +2,11 @@ import datetime
 
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from . import models
 from . import serializers
+
 
 class ListCreateManagement(generics.ListCreateAPIView):
     queryset = models.Management.objects.all()
@@ -38,37 +40,58 @@ class RetrieveUpdateDestroyCriterion(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Criterion.objects.all()
     serializer_class = serializers.CriterionSerializer
 
-class ListCreateEvaluation(generics.ListCreateAPIView):
-    queryset = models.Evaluation.objects.all()
-    serializer_class = serializers.EvaluationSerializer
+class ListUnitEvaluation(APIView):
+    def get(self, request, unit_pk, format=None):
+        evaluations = models.Evaluation.objects.values(
+            'month', 'year'
+        ).filter(unit_id=unit_pk).distinct()
+        return Response(evaluations)
 
-    def get_queryset(self):
-        return self.queryset.filter(
-            unit_id=self.kwargs.get('unit_pk')
-        )
-
-    def create(self, request, *args, **kwargs):
+class CreateUnitEvaluation(APIView):
+    def post(self, request, format=None):
         criteria = models.Criterion.objects.all()
-        for criterion in criteria:
-            evaluation_exists = models.Evaluation.objects.filter(
-                date=datetime.date.today().replace(day=1),
-                unit_id=self.kwargs.get('unit_pk'),
-                criterion_id=criterion.id
-            )
-            if evaluation_exists:
-                return Response('This evaluation already done', status=status.HTTP_400_BAD_REQUEST)
 
+        evaluation_exists = models.Evaluation.objects.filter(
+            month=self.request.data.get('month'),
+            year=self.request.data.get('year'),
+            unit_id=self.request.data.get('unit_id'),
+            criterion_id=criteria[0].id
+        )
+        if evaluation_exists:
+            return Response('This evaluation already done', status=status.HTTP_400_BAD_REQUEST)
+
+        for criterion in criteria:
             obj = models.Evaluation()
-            obj.date = datetime.date.today().replace(day=1)
-            obj.unit_id = self.kwargs.get('unit_pk')
+            obj.month = self.request.data.get('month')
+            obj.year = self.request.data.get('year')
+            obj.unit_id = self.request.data.get('unit_id')
             obj.checked = False
             obj.department_id = criterion.department_id
             obj.criterion_id = criterion.id
             obj.save()
 
         return Response('Resource created', status=status.HTTP_201_CREATED)
-            
+
+class DeleteUnitEvaluation(APIView):
+    def delete(self, request, unit_pk, format=None):
+        try:
+            models.Evaluation.objects.filter(
+                unit_id=unit_pk,
+                month=self.request.query_params.get('month'),
+                year=self.request.query_params.get('year')
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class RetrieveUpdateDestroyEvaluation(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Evaluation.objects.all()
     serializer_class = serializers.EvaluationSerializer
+
+class ListDepartmentEvaluation(generics.ListAPIView):
+    serializer_class = serializers.DepartmentEvaluationSerializer
+
+    def get_queryset(self):
+        queryset = models.Department.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)  
+        return queryset

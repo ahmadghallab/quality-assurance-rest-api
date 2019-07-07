@@ -10,11 +10,6 @@ urlpatterns = [
     path('management/<int:pk>',
         views.RetrieveUpdateDestroyManagement.as_view()),
 
-    path('unit',
-        views.ListCreateUnit.as_view()),
-    path('unit/<int:pk>',
-        views.RetrieveUpdateDestroyUnit.as_view()),
-
     path('department', 
         views.ListCreateDepartment.as_view()),
     path('department/<int:pk>',
@@ -25,14 +20,19 @@ urlpatterns = [
     path('criterion/<int:pk>',
         views.RetrieveUpdateDestroyCriterion.as_view()),
 
-    path('unit/evaluation',
+    path('unit',
+        views.ListCreateUnit.as_view()),
+    path('unit/<int:pk>',
+        views.RetrieveUpdateDestroyUnit.as_view()),
+    path('unit/<int:unit_pk>/evaluation/create',
         views.CreateUnitEvaluation.as_view()),
-    path('unit/<int:unit_pk>/evaluation',
+    path('unit/<int:unit_pk>/evaluation/list',
         views.ListUnitEvaluation.as_view()),
     path('unit/<int:unit_pk>/evaluation/delete',
         views.DeleteUnitEvaluation.as_view()),
-    path('evaluation/edit',
-        views.ListDepartmentEvaluation.as_view()),
+    path('unit/<int:unit_pk>/evaluation/edit',
+        views.EditUnitEvaluation.as_view()),
+
     path('evaluation/<int:pk>',
-        views.RetrieveUpdateDestroyEvaluation.as_view()),
+        views.UpdateEvaluation.as_view()),
 ]

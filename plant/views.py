@@ -48,13 +48,13 @@ class ListUnitEvaluation(APIView):
         return Response(evaluations)
 
 class CreateUnitEvaluation(APIView):
-    def post(self, request, format=None):
+    def post(self, request, unit_pk, format=None):
         criteria = models.Criterion.objects.all()
 
         evaluation_exists = models.Evaluation.objects.filter(
             month=self.request.data.get('month'),
             year=self.request.data.get('year'),
-            unit_id=self.request.data.get('unit_id'),
+            unit_id=unit_pk,
             criterion_id=criteria[0].id
         )
         if evaluation_exists:
@@ -64,7 +64,7 @@ class CreateUnitEvaluation(APIView):
             obj = models.Evaluation()
             obj.month = self.request.data.get('month')
             obj.year = self.request.data.get('year')
-            obj.unit_id = self.request.data.get('unit_id')
+            obj.unit_id = unit_pk
             obj.checked = False
             obj.department_id = criterion.department_id
             obj.criterion_id = criterion.id
@@ -84,14 +84,30 @@ class DeleteUnitEvaluation(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class RetrieveUpdateDestroyEvaluation(generics.RetrieveUpdateDestroyAPIView):
+class EditUnitEvaluation(APIView):
+    def get(self, request, unit_pk, format=None):
+
+        departments = models.Evaluation.objects.values(
+            'department__id', 'department__name'
+        ).filter(
+            unit_id=unit_pk,
+            month=self.request.query_params.get('month'),
+            year=self.request.query_params.get('year')
+        ).distinct()
+
+        evaluations = models.Evaluation.objects.values(
+            'pk', 'department_id', 'criterion__name', 'checked'
+        ).filter(
+            unit_id=unit_pk,
+            month=self.request.query_params.get('month'),
+            year=self.request.query_params.get('year')
+        )
+
+        return Response({
+            'departments': departments,
+            'evaluations': evaluations
+        }, status=status.HTTP_200_OK)
+
+class UpdateEvaluation(generics.UpdateAPIView):
     queryset = models.Evaluation.objects.all()
     serializer_class = serializers.EvaluationSerializer
-
-class ListDepartmentEvaluation(generics.ListAPIView):
-    serializer_class = serializers.DepartmentEvaluationSerializer
-
-    def get_queryset(self):
-        queryset = models.Department.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)  
-        return queryset

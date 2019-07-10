@@ -15,7 +15,7 @@ class ManagementSerializer(serializers.ModelSerializer):
 
 class CriterionSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'name', 'department')
+        fields = ('id', 'name', 'suggested_solution', 'department')
         model = models.Criterion
 
 class DepartmentSerializer(serializers.ModelSerializer):

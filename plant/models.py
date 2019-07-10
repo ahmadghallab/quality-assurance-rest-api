@@ -24,6 +24,7 @@ class Department(models.Model):
 
 class Criterion(models.Model):
     name = models.CharField(max_length=100)
+    suggested_solution = models.TextField(null=True)
     department = models.ForeignKey(Department, related_name='criteria', on_delete=models.CASCADE)
 
     class Meta:

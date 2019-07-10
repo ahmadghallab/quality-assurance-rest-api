@@ -51,6 +51,7 @@ class ListUnitEvaluation(APIView):
 
 class CreateUnitEvaluation(APIView):
     def post(self, request, unit_pk, format=None):
+        
         criteria = models.Criterion.objects.all()
 
         evaluation_exists = models.Evaluation.objects.filter(
@@ -67,7 +68,7 @@ class CreateUnitEvaluation(APIView):
             obj.month = self.request.data.get('month')
             obj.year = self.request.data.get('year')
             obj.unit_id = unit_pk
-            obj.checked = False
+            obj.checked = True
             obj.department_id = criterion.department_id
             obj.criterion_id = criterion.id
             obj.save()
@@ -86,19 +87,8 @@ class DeleteUnitEvaluation(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class SaveUnitEvaluation(APIView):
-    def post(self, request, format=None):
-        criteria = self.request.data.get('criteria')
-        for criterion in criteria:
-            models.Evaluation.objects.filter(pk=criterion).update(
-                checked=Q(checked=False)
-            )
-
-        return Response(status=status.HTTP_200_OK)
-
 class EditUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
-
         departments = models.Evaluation.objects.values(
             'department__id', 'department__name'
         ).filter(
@@ -108,7 +98,7 @@ class EditUnitEvaluation(APIView):
         ).distinct()
 
         evaluations = models.Evaluation.objects.values(
-            'id', 'department_id', 'criterion__name', 'checked'
+            'id', 'department_id', 'criterion__name', 'criterion__suggested_solution', 'checked'
         ).filter(
             unit_id=unit_pk,
             month=self.request.query_params.get('month'),
@@ -119,6 +109,16 @@ class EditUnitEvaluation(APIView):
             'departments': departments,
             'evaluations': evaluations
         }, status=status.HTTP_200_OK)
+
+class SaveUnitEvaluation(APIView):
+    def post(self, request, format=None):
+        criteria = self.request.data.get('criteria')
+        for criterion in criteria:
+            models.Evaluation.objects.filter(pk=criterion).update(
+                checked=Q(checked=False)
+            )
+
+        return Response(status=status.HTTP_200_OK)
 
 class UpdateEvaluation(generics.UpdateAPIView):
     queryset = models.Evaluation.objects.all()

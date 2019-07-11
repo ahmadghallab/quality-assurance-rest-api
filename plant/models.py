@@ -23,8 +23,7 @@ class Department(models.Model):
         return self.name
 
 class Criterion(models.Model):
-    name = models.CharField(max_length=100)
-    suggested_solution = models.TextField(null=True)
+    name = models.CharField(max_length=255)
     department = models.ForeignKey(Department, related_name='criteria', on_delete=models.CASCADE)
 
     class Meta:

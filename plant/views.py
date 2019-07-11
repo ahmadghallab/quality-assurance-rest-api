@@ -105,7 +105,7 @@ class EditUnitEvaluation(APIView):
         ).distinct()
 
         evaluations = models.Evaluation.objects.values(
-            'id', 'department_id', 'criterion__name', 'criterion__suggested_solution', 'checked'
+            'id', 'department_id', 'criterion__name', 'checked'
         ).filter(
             unit_id=unit_pk,
             month=self.request.query_params.get('month'),

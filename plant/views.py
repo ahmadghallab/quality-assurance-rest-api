@@ -89,6 +89,13 @@ class DeleteUnitEvaluation(APIView):
 
 class EditUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
+
+        unit = models.Unit.objects.values(
+            'name', 'management__name'
+        ).get(
+            pk=unit_pk
+        )
+
         departments = models.Evaluation.objects.values(
             'department__id', 'department__name'
         ).filter(
@@ -107,7 +114,8 @@ class EditUnitEvaluation(APIView):
 
         return Response({
             'departments': departments,
-            'evaluations': evaluations
+            'evaluations': evaluations,
+            'unit': unit
         }, status=status.HTTP_200_OK)
 
 class SaveUnitEvaluation(APIView):

@@ -1,6 +1,6 @@
 import datetime
 
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -87,8 +87,19 @@ class DeleteUnitEvaluation(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class EditUnitEvaluation(APIView):
+class DisplayUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
+
+        if self.request.query_params.get('department'):
+            evaluations = models.Evaluation.objects.values(
+                'id','criterion__name', 'checked'
+            ).filter(
+                unit_id=unit_pk,
+                department_id=self.request.query_params.get('department'),
+                month=self.request.query_params.get('month'),
+                year=self.request.query_params.get('year')
+            )
+            return Response(evaluations, status=status.HTTP_200_OK)
 
         unit = models.Unit.objects.values(
             'name', 'management__name'
@@ -104,19 +115,29 @@ class EditUnitEvaluation(APIView):
             year=self.request.query_params.get('year')
         ).distinct()
 
-        evaluations = models.Evaluation.objects.values(
-            'id', 'department_id', 'criterion__name', 'checked'
-        ).filter(
-            unit_id=unit_pk,
-            month=self.request.query_params.get('month'),
-            year=self.request.query_params.get('year')
-        )
 
-        return Response({
-            'departments': departments,
-            'evaluations': evaluations,
-            'unit': unit
-        }, status=status.HTTP_200_OK)
+        if self.request.query_params.get('mode') == 'print':
+            evaluations = models.Evaluation.objects.values(
+                'id', 'department_id', 'criterion__name', 'checked'
+            ).filter(
+                unit_id=unit_pk,
+                month=self.request.query_params.get('month'),
+                year=self.request.query_params.get('year')
+            )
+            return Response({
+                'departments': departments,
+                'evaluations': evaluations,
+                'unit': unit
+            }, status=status.HTTP_200_OK)
+
+        elif self.request.query_params.get('mode') == 'edit':
+            return Response({
+                'departments': departments,
+                'unit': unit
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response('missing query param "mode"', status=status.HTTP_400_BAD_REQUEST)
+
 
 class SaveUnitEvaluation(APIView):
     def post(self, request, format=None):
@@ -131,3 +152,12 @@ class SaveUnitEvaluation(APIView):
 class UpdateEvaluation(generics.UpdateAPIView):
     queryset = models.Evaluation.objects.all()
     serializer_class = serializers.EvaluationSerializer
+
+class ListDepartmentEvaluation(generics.ListAPIView):
+    # queryset = models.Department.objects.all()
+    serializer_class = serializers.DepartmentEvaluationSerializer
+
+    def get_queryset(self):
+        queryset = models.Department.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)  
+        return queryset 

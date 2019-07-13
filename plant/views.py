@@ -89,8 +89,9 @@ class DeleteUnitEvaluation(APIView):
 
 class DisplayUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
+        mode = self.request.query_params.get('mode')
 
-        if self.request.query_params.get('department'):
+        if mode == 'get':
             evaluations = models.Evaluation.objects.values(
                 'id','criterion__name', 'checked'
             ).filter(
@@ -101,12 +102,6 @@ class DisplayUnitEvaluation(APIView):
             )
             return Response(evaluations, status=status.HTTP_200_OK)
 
-        unit = models.Unit.objects.values(
-            'name', 'management__name'
-        ).get(
-            pk=unit_pk
-        )
-
         departments = models.Evaluation.objects.values(
             'department__id', 'department__name'
         ).filter(
@@ -116,7 +111,12 @@ class DisplayUnitEvaluation(APIView):
         ).distinct()
 
 
-        if self.request.query_params.get('mode') == 'print':
+        if mode == 'print':
+            unit = models.Unit.objects.values(
+                'name', 'management__name'
+            ).get(
+                pk=unit_pk
+            )
             evaluations = models.Evaluation.objects.values(
                 'id', 'department_id', 'criterion__name', 'checked'
             ).filter(
@@ -130,13 +130,10 @@ class DisplayUnitEvaluation(APIView):
                 'unit': unit
             }, status=status.HTTP_200_OK)
 
-        elif self.request.query_params.get('mode') == 'edit':
-            return Response({
-                'departments': departments,
-                'unit': unit
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response('missing query param "mode"', status=status.HTTP_400_BAD_REQUEST)
+        if mode == 'edit':
+            return Response(departments, status=status.HTTP_200_OK)
+
+        return Response('missing query param (mode) available options [get, edit, print]', status=status.HTTP_400_BAD_REQUEST)
 
 
 class SaveUnitEvaluation(APIView):

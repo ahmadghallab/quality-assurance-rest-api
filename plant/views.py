@@ -111,7 +111,7 @@ class DisplayUnitEvaluation(APIView):
         ).distinct()
 
 
-        if mode == 'print':
+        if mode == 'report':
             unit = models.Unit.objects.values(
                 'name', 'management__name'
             ).get(
@@ -133,7 +133,7 @@ class DisplayUnitEvaluation(APIView):
         if mode == 'edit':
             return Response(departments, status=status.HTTP_200_OK)
 
-        return Response('missing query param (mode) available options [get, edit, print]', status=status.HTTP_400_BAD_REQUEST)
+        return Response('missing query param (mode) available options [get, edit, report]', status=status.HTTP_400_BAD_REQUEST)
 
 
 class SaveUnitEvaluation(APIView):

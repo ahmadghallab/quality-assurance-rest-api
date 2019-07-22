@@ -38,4 +38,5 @@ class Evaluation(models.Model):
     unit = models.ForeignKey(Unit, related_name='unit_evaluations', on_delete=models.CASCADE)
     department = models.ForeignKey(Department, related_name='department_evaluations', on_delete=models.CASCADE)
     criterion = models.ForeignKey(Criterion, related_name='criterion_evaluations', on_delete=models.CASCADE)
-    checked = models.BooleanField()
+    fulfilled = models.NullBooleanField()
+    text = models.TextField(null=True)

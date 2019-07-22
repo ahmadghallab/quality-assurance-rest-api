@@ -1,7 +1,3 @@
-import datetime
-
-from django.db.models import Q, prefetch_related_objects
-
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -68,7 +64,7 @@ class CreateUnitEvaluation(APIView):
             obj.month = self.request.data.get('month')
             obj.year = self.request.data.get('year')
             obj.unit_id = unit_pk
-            obj.checked = True
+            obj.fulfilled = True
             obj.department_id = criterion.department_id
             obj.criterion_id = criterion.id
             obj.save()
@@ -93,7 +89,7 @@ class DisplayUnitEvaluation(APIView):
 
         if mode == 'get':
             evaluations = models.Evaluation.objects.values(
-                'id','criterion__name', 'checked'
+                'id','criterion__name', 'fulfilled', 'text'
             ).filter(
                 unit_id=unit_pk,
                 department_id=self.request.query_params.get('department'),
@@ -118,7 +114,7 @@ class DisplayUnitEvaluation(APIView):
                 pk=unit_pk
             )
             evaluations = models.Evaluation.objects.values(
-                'id', 'department_id', 'criterion__name', 'checked'
+                'id', 'department_id', 'criterion__name', 'fulfilled', 'text'
             ).filter(
                 unit_id=unit_pk,
                 month=self.request.query_params.get('month'),
@@ -135,26 +131,19 @@ class DisplayUnitEvaluation(APIView):
 
         return Response('missing query param (mode) available options [get, edit, report]', status=status.HTTP_400_BAD_REQUEST)
 
-
-class SaveUnitEvaluation(APIView):
+class SaveEvaluation(APIView):
     def post(self, request, format=None):
         criteria = self.request.data.get('criteria')
-        for criterion in criteria:
-            models.Evaluation.objects.filter(pk=criterion).update(
-                checked=Q(checked=False)
+        fulfilled = self.request.data.get('fulfilled')
+        text = self.request.data.get('text')
+
+        if text:
+            models.Evaluation.objects.filter(pk__in=criteria).update(
+                text=text
+            )
+        else:
+            models.Evaluation.objects.filter(pk__in=criteria).update(
+                fulfilled=fulfilled
             )
 
         return Response(status=status.HTTP_200_OK)
-
-class UpdateEvaluation(generics.UpdateAPIView):
-    queryset = models.Evaluation.objects.all()
-    serializer_class = serializers.EvaluationSerializer
-
-class ListDepartmentEvaluation(generics.ListAPIView):
-    # queryset = models.Department.objects.all()
-    serializer_class = serializers.DepartmentEvaluationSerializer
-
-    def get_queryset(self):
-        queryset = models.Department.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)  
-        return queryset 

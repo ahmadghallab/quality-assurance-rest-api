@@ -33,4 +33,7 @@ urlpatterns = [
     path('unit/<int:unit_pk>/evaluation/delete',
         views.DeleteUnitEvaluation.as_view()),
     path('evaluation/save', views.SaveEvaluation.as_view()),
+
+    path('management/<int:management_pk>/evaluation/display', 
+        views.DisplayManagementEvaluation.as_view())
 ]

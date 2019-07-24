@@ -1,3 +1,5 @@
+from django.db.models import Count, Sum, Q
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -40,10 +42,19 @@ class RetrieveUpdateDestroyCriterion(generics.RetrieveUpdateDestroyAPIView):
 
 class ListUnitEvaluation(APIView):
     def get(self, request, unit_pk, format=None):
+        unit = models.Unit.objects.values(
+            'name', 'management__id', 'management__name'
+        ).get(
+            pk=unit_pk
+        )
         evaluations = models.Evaluation.objects.values(
             'month', 'year'
         ).filter(unit_id=unit_pk).distinct()
-        return Response(evaluations)
+
+        return Response({
+            'evaluations': evaluations,
+            'unit': unit
+        }, status=status.HTTP_200_OK)
 
 class CreateUnitEvaluation(APIView):
     def post(self, request, unit_pk, format=None):
@@ -147,3 +158,18 @@ class SaveEvaluation(APIView):
             )
 
         return Response(status=status.HTTP_200_OK)
+
+class DisplayManagementEvaluation(APIView):
+    def get(self, request, management_pk, format=None):
+        evaluations = models.Evaluation.objects.values(
+            'unit__name',
+        ).filter(
+            month=self.request.query_params.get('month'),
+            year=self.request.query_params.get('year')
+        ).distinct().annotate(
+            total=Count('pk'),
+            total_fulfilled=Count('fulfilled', filter=Q(fulfilled=True)),
+            total_not_fulfilled=Count('fulfilled', filter=Q(fulfilled=False))
+        )
+        
+        return Response(evaluations, status=status.HTTP_200_OK)

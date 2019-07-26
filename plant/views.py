@@ -58,27 +58,34 @@ class ListUnitEvaluation(APIView):
 
 class CreateUnitEvaluation(APIView):
     def post(self, request, unit_pk, format=None):
+
+        month = self.request.data.get('month')
+        year = self.request.data.get('year')
         
         criteria = models.Criterion.objects.all()
 
         evaluation_exists = models.Evaluation.objects.filter(
-            month=self.request.data.get('month'),
-            year=self.request.data.get('year'),
+            month=month,
+            year=year,
             unit_id=unit_pk,
             criterion_id=criteria[0].id
         )
         if evaluation_exists:
             return Response('This evaluation already done', status=status.HTTP_400_BAD_REQUEST)
 
+        values = []
         for criterion in criteria:
-            obj = models.Evaluation()
-            obj.month = self.request.data.get('month')
-            obj.year = self.request.data.get('year')
-            obj.unit_id = unit_pk
-            obj.fulfilled = True
-            obj.department_id = criterion.department_id
-            obj.criterion_id = criterion.id
-            obj.save()
+            b = {'month': self.request.data.get('month'),
+                'year': self.request.data.get('year'),
+                'unit_id': unit_pk,
+                'fulfilled': True,
+                'department_id': criterion.department_id,
+                'criterion_id': criterion.id
+            }
+            values.append(b.copy())
+        
+        aList = [models.Evaluation(**vals) for vals in values]
+        models.Evaluation.objects.bulk_create(aList)
 
         return Response('Resource created', status=status.HTTP_201_CREATED)
 
@@ -148,7 +155,7 @@ class SaveEvaluation(APIView):
         fulfilled = self.request.data.get('fulfilled')
         text = self.request.data.get('text')
 
-        if text:
+        if text or text == '':
             models.Evaluation.objects.filter(pk__in=criteria).update(
                 text=text
             )
